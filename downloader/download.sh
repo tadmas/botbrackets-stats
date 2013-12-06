@@ -23,6 +23,9 @@ trap cleanup EXIT
 
 function create_output_directories {
 	mkdir -p "$STATS_DIR/original"
+	mkdir -p "$STATS_DIR/cleaned"
+	mkdir -p "$STATS_DIR/tidy"
+	mkdir -p "$STATS_DIR/sql"
 }
 
 ###############################################################################
@@ -35,6 +38,11 @@ This script downloads and processes NCAA men's basketball game files.
 PARAMETERS:
   -O   Output directory for game files.
   -y   Academic year of statistics to download.
+
+PROCESSING FLAGS:
+  -a   Process all files, not just missing ones. (Files are not re-downloaded.)
+  -p   Process only; do not download any game files.
+  -k   Download new KenPom data (used to check W/L records).
 
 MISC OPTIONS:
   -h   Show this message.
@@ -59,7 +67,7 @@ function status_output_file {
 }
 
 ###############################################################################
-# Processing methods
+# File methods
 
 function gamenums_to_gameurls {
 	sed "s/^/http:\/\/stats.ncaa.org\/game\/index\//" "$gamenums_file" >| "$gameurls_file"
@@ -72,6 +80,20 @@ function gamelist_to_gamenums {
 	sed -n "s/<a href=.\/game\/index\/\([0-9]*\)\?.*$/\1/p" | \
 	while read game_number; do
 		if [ ! -f "$STATS_DIR/original/$game_number" ]; then
+			echo $game_number >> "$gamenums_file"
+		fi
+	done
+}
+
+function dir_to_gamenums {
+	ls -1 "$STATS_DIR/$1" >| "$gamenums_file"
+}
+
+function missing_to_gamenums {
+	cp /dev/null "$gamenums_file"
+
+	ls -1 "$STATS_DIR/$2" | while read game_number; do
+		if [ ! -f "$STATS_DIR/$1/$game_number" ]; then
 			echo $game_number >> "$gamenums_file"
 		fi
 	done
@@ -111,13 +133,54 @@ function download_all_teams {
 }
 
 ###############################################################################
+# Processing functions
+
+function clean_games {
+	if [[ $PROCESS_MISSING = 1 ]]; then
+		status_message "Cleaning missing games..."
+		missing_to_gamenums cleaned original
+		status_output_file "$gamenums_file"
+	else
+		status_message "Cleaning..."
+		dir_to_gamenums original
+	fi
+
+	while read game_number; do
+		sed \
+			-e "s/\<R\>//g" \
+			-e "s/\<O\>//g" \
+			-e "s/\<rules//g" \
+			-e "s/[\<]Liacouras/Liacouras/g" \
+			-e "s/[\<]INTRUST/INTRUST/g" \
+		"$STATS_DIR/original/$game_number" >| "$STATS_DIR/cleaned/$game_number"
+	done < "$gamenums_file"
+}
+
+function tidy_games {
+	if [[ $PROCESS_MISSING = 1 ]]; then
+		status_message "Running tidy on missing games..."
+		missing_to_gamenums tidy cleaned
+		status_output_file "$gamenums_file"
+	else
+		status_message "Running tidy..."
+		dir_to_gamenums cleaned
+	fi
+
+	while read game_number; do
+		tidy -b -n -q -w 8000 -asxml -o "$STATS_DIR/tidy/$game_number" "$STATS_DIR/cleaned/$game_number" 2>&1 >/dev/null | grep -v "Warning: "
+	done < "$gamenums_file"
+}
+
+###############################################################################
 # MAIN SCRIPT
 
 STATS_YEAR=
 STATS_DIR=
 WGET_OPTIONS=
 QUIET_MODE=0
-while getopts ":hy:O:qQ" OPTION; do
+SKIP_DOWNLOAD=0
+PROCESS_MISSING=1
+while getopts ":hy:apkO:qQ" OPTION; do
 	case $OPTION in
 		h)
 			usage
@@ -125,6 +188,16 @@ while getopts ":hy:O:qQ" OPTION; do
 			;;
 		y)
 			STATS_YEAR=$OPTARG
+			;;
+		a)
+			PROCESS_MISSING=0
+			;;
+		p)
+			SKIP_DOWNLOAD=1
+			;;
+		k)
+			echo "Option -k not implemented yet." >&2
+			exit 1
 			;;
 		O)
 			STATS_DIR="$OPTARG"
@@ -147,18 +220,20 @@ while getopts ":hy:O:qQ" OPTION; do
 	esac
 done
 
-# These are checked separately since eventually this script will be able to do things other than
-# downloading files, so the year parameter might be optional.
-
 if [[ -z $STATS_DIR ]]; then
 	echo "Option -O is required." >&2
 	exit 1
 fi
 
-if [[ -z $STATS_YEAR ]]; then
+if [[ -z $STATS_YEAR ]] && [[ $SKIP_DOWNLOAD = 0 ]]; then
 	echo "Option -y is required." >&2
 	exit 1
 fi
 
 create_output_directories 
-download_all_teams
+if [[ $SKIP_DOWNLOAD = 0 ]]; then
+	download_all_teams
+fi
+
+clean_games
+tidy_games
