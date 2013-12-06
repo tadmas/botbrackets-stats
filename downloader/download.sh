@@ -38,10 +38,11 @@ This script downloads and processes NCAA men's basketball game files.
 PARAMETERS:
   -O   Output directory for game files.
   -y   Academic year of statistics to download.
+  -p   Password to the stats database.
 
 PROCESSING FLAGS:
   -a   Process all files, not just missing ones. (Files are not re-downloaded.)
-  -p   Process only; do not download any game files.
+  -P   Process only; do not download any game files.
   -k   Download new KenPom data (used to check W/L records).
 
 MISC OPTIONS:
@@ -196,27 +197,31 @@ WGET_OPTIONS=
 QUIET_MODE=0
 SKIP_DOWNLOAD=0
 PROCESS_MISSING=1
-while getopts ":hy:apkO:qQ" OPTION; do
+MYSQL_PASSWORD=
+while getopts ":O:y:p:aPkhqQ" OPTION; do
 	case $OPTION in
-		h)
-			usage
-			exit
+		O)
+			STATS_DIR="$OPTARG"
 			;;
 		y)
 			STATS_YEAR=$OPTARG
 			;;
+		p)
+			MYSQL_PASSWORD="$OPTARG"
+			;;
 		a)
 			PROCESS_MISSING=0
 			;;
-		p)
+		P)
 			SKIP_DOWNLOAD=1
 			;;
 		k)
 			echo "Option -k not implemented yet." >&2
 			exit 1
 			;;
-		O)
-			STATS_DIR="$OPTARG"
+		h)
+			usage
+			exit
 			;;
 		q)
 			WGET_OPTIONS+=" -q"
@@ -246,7 +251,13 @@ if [[ -z $STATS_YEAR ]] && [[ $SKIP_DOWNLOAD = 0 ]]; then
 	exit 1
 fi
 
+if [[ -z $MYSQL_PASSWORD ]]; then
+	echo "The database password (option -p) is required." >&2
+	exit 1
+fi
+
 create_output_directories 
+
 if [[ $SKIP_DOWNLOAD = 0 ]]; then
 	download_all_teams
 fi
@@ -254,4 +265,3 @@ fi
 clean_games
 tidy_games
 transform_games
-
