@@ -126,7 +126,7 @@ function download_all_teams {
 	wget $WGET_OPTIONS -O "$teamlist_file" "http://stats.ncaa.org/team/inst_team_list?academic_year=$STATS_YEAR&conf_id=-1&division=1&sport_code=MBB"
 
 	sed "s/</\n</g" "$teamlist_file" | \
-	sed -n "s/<a href=.\/team\/index\/\(11540[?]org_id=[0-9]*\).*$/http:\/\/stats.ncaa.org\/team\/index\/\1/p" | \
+	sed -n "s/<a href=.\/team\/index\/\([0-9][0-9]*[?]org_id=[0-9]*\).*$/http:\/\/stats.ncaa.org\/team\/index\/\1/p" | \
 	while read team_url; do
 		download_team_games "$team_url"
 	done
@@ -171,9 +171,25 @@ function tidy_games {
 	done < "$gamenums_file"
 }
 
+function transform_games {
+	if [[ $PROCESS_MISSING = 1 ]]; then
+		status_message "Running XSL on missing games..."
+		missing_to_gamenums sql tidy
+		status_output_file "$gamenums_file"
+	else
+		status_message "Running XSL..."
+		dir_to_gamenums tidy
+	fi
+
+	while read game_number; do
+		xsltproc -o "$STATS_DIR/sql/$game_number" --stringparam GAMENO "$game_number" --novalid --nonet "$SCRIPT_DIR/game_sql.xsl" "$STATS_DIR/tidy/$game_number"
+	done < "$gamenums_file"
+}
+
 ###############################################################################
 # MAIN SCRIPT
 
+SCRIPT_DIR="$(dirname "$0")"
 STATS_YEAR=
 STATS_DIR=
 WGET_OPTIONS=
@@ -237,3 +253,5 @@ fi
 
 clean_games
 tidy_games
+transform_games
+
