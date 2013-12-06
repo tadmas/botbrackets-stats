@@ -187,6 +187,15 @@ function transform_games {
 	done < "$gamenums_file"
 }
 
+function import_games_to_db {
+	status_message "Importing games into DB..."
+	mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$SCRIPT_DIR/resetdb.sql"
+	dir_to_gamenums sql
+	while read game_number; do
+		mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$STATS_DIR/sql/$game_number"
+	done < "$gamenums_file"
+}
+
 ###############################################################################
 # MAIN SCRIPT
 
@@ -265,3 +274,6 @@ fi
 clean_games
 tidy_games
 transform_games
+import_games_to_db
+
+status_message "Done."
