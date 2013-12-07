@@ -194,6 +194,9 @@ function import_games_to_db {
 	while read game_number; do
 		mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$STATS_DIR/sql/$game_number"
 	done < "$gamenums_file"
+
+	status_message "Doing DB post-processing..."
+	mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$SCRIPT_DIR/process.sql"
 }
 
 ###############################################################################
