@@ -93,6 +93,13 @@ from (
 			Games.teamAScore as ptsfor,
 			Games.teamBScore as ptsopp
 		from Games
+		union all
+		select
+			Games.teamB as team,
+			case when Games.teamBScore > Games.teamAScore then 'W' else 'L' end as outcome,
+			Games.teamBScore as ptsfor,
+			Games.teamAScore as ptsopp
+		from Games
 	) as data
 	group by data.team
 ) WLData
