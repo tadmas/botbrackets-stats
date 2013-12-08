@@ -173,7 +173,7 @@ select Games.gameId,STR_TO_DATE(Games.gameDate,'%m/%d/%Y %h:%i %p'),
 from Games
 inner join Stats A on A.gameId = Games.gameId and A.team = Games.teamA
 inner join Stats B on B.gameId = Games.gameId and B.team = Games.teamB
-inner join TeamSummary on TeamSummary.name = Games.teamA; /* ignore non-DivI */
+inner join TeamSummary on TeamSummary.name = Games.teamB; /* ignore non-DivI */
 
 -- ============================================================================
 -- Fixup summary tables

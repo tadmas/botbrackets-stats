@@ -199,6 +199,15 @@ function import_games_to_db {
 	mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$SCRIPT_DIR/process.sql"
 }
 
+function create_json_file {
+	status_message "Creating JSON file..."
+	php \
+		-d mysqli.default_host=localhost \
+		-d mysqli.default_user=bbstatsdownload \
+		-d mysqli.default_pw="$MYSQL_PASSWORD" \
+		"$SCRIPT_DIR/json.php" >| "$STATS_DIR/stats.json"
+}
+
 ###############################################################################
 # MAIN SCRIPT
 
@@ -278,5 +287,6 @@ clean_games
 tidy_games
 transform_games
 import_games_to_db
+create_json_file
 
 status_message "Done."
