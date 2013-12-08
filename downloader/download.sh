@@ -9,12 +9,18 @@ teamlist_file=$(mktemp -t teamlist.$$.XXXXXXXXXX)
 gamelist_file=$(mktemp -t gamelist.$$.XXXXXXXXXX)
 gamenums_file=$(mktemp -t gamenums.$$.XXXXXXXXXX)
 gameurls_file=$(mktemp -t gameurls.$$.XXXXXXXXXX)
+kenpom_raw_file=$(mktemp -t kenpomraw.$$.XXXXXXXXXX)
+kenpom_tidy_file=$(mktemp -t kenpomtidy.$$.XXXXXXXXXX)
+kenpom_sql_file=$(mktemp -t kenpomsql.$$.XXXXXXXXXX)
 
 function cleanup {
   rm "$teamlist_file"
   rm "$gamelist_file"
   rm "$gamenums_file"
   rm "$gameurls_file"
+  rm "$kenpom_raw_file"
+  rm "$kenpom_tidy_file"
+  rm "$kenpom_sql_file"
 }
 trap cleanup EXIT
 
@@ -133,6 +139,11 @@ function download_all_teams {
 	done
 }
 
+function download_kenpom {
+	status_message "Downloading KenPom file..."
+	wget $WGET_OPTIONS -O "$kenpom_raw_file" "http://kenpom.com"
+}
+
 ###############################################################################
 # Processing functions
 
@@ -208,6 +219,15 @@ function create_json_file {
 		"$SCRIPT_DIR/json.php" >| "$STATS_DIR/stats.json"
 }
 
+function process_kenpom_file {
+	status_message "Running tidy on KenPom file..."
+	tidy -b -n -q -asxml -o "$kenpom_tidy_file" "$kenpom_raw_file" 2>/dev/null >/dev/null
+	status_message "Running XSL on KenPom file..."
+	xsltproc -o "$kenpom_sql_file" --novalid --nonet "$SCRIPT_DIR/kenpom_sql.xsl" "$kenpom_tidy_file"
+	status_message "Importing KenPom data into database..."
+	mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$kenpom_sql_file"
+}
+
 ###############################################################################
 # MAIN SCRIPT
 
@@ -218,6 +238,7 @@ WGET_OPTIONS=
 QUIET_MODE=0
 SKIP_DOWNLOAD=0
 PROCESS_MISSING=1
+PROCESS_KENPOM=0
 MYSQL_PASSWORD=
 while getopts ":O:y:p:aPkhqQ" OPTION; do
 	case $OPTION in
@@ -237,8 +258,7 @@ while getopts ":O:y:p:aPkhqQ" OPTION; do
 			SKIP_DOWNLOAD=1
 			;;
 		k)
-			echo "Option -k not implemented yet." >&2
-			exit 1
+			PROCESS_KENPOM=1
 			;;
 		h)
 			usage
@@ -281,6 +301,11 @@ create_output_directories
 
 if [[ $SKIP_DOWNLOAD = 0 ]]; then
 	download_all_teams
+fi
+
+if [[ $PROCESS_KENPOM = 1 ]]; then
+	download_kenpom
+	process_kenpom_file
 fi
 
 clean_games
