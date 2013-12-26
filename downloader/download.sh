@@ -45,6 +45,7 @@ PARAMETERS:
   -O   Output directory for game files.
   -y   Academic year of statistics to download.
   -p   Password to the stats database.
+  -f   Fixup file for game stats.
 
 PROCESSING FLAGS:
   -a   Process all files, not just missing ones. (Files are not re-downloaded.)
@@ -208,6 +209,11 @@ function import_games_to_db {
 		mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$STATS_DIR/sql/$game_number"
 	done < "$gamenums_file"
 
+	if [[ ! -z $FIXUP_FILE ]]; then
+		status_message "Running fixup file..."
+		mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$FIXUP_FILE"
+	fi
+
 	status_message "Doing DB post-processing..."
 	mysql -u bbstatsdownload "-p$MYSQL_PASSWORD" bbstats < "$SCRIPT_DIR/process.sql"
 }
@@ -242,7 +248,8 @@ SKIP_DOWNLOAD=0
 PROCESS_MISSING=1
 PROCESS_KENPOM=0
 MYSQL_PASSWORD=
-while getopts ":O:y:p:aPkhqQ" OPTION; do
+FIXUP_FILE=
+while getopts ":O:y:p:f:aPkhqQ" OPTION; do
 	case $OPTION in
 		O)
 			STATS_DIR="$OPTARG"
@@ -252,6 +259,9 @@ while getopts ":O:y:p:aPkhqQ" OPTION; do
 			;;
 		p)
 			MYSQL_PASSWORD="$OPTARG"
+			;;
+		f)
+			FIXUP_FILE="$OPTARG"
 			;;
 		a)
 			PROCESS_MISSING=0
