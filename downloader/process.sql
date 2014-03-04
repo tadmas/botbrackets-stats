@@ -60,6 +60,12 @@ update Games set gameDate = REPLACE(gameDate, ' AM', ':00 AM') where gameDate li
 update Games set gameDate = REPLACE(gameDate, ';', ':') where gameDate like '%;%';
 
 -- ============================================================================
+-- Standard fixup: team names
+-- ============================================================================
+
+update Stats set team = REPLACE(team, ' - Exhibition contest for this institution', '') where team like '%Exhibition%';
+
+-- ============================================================================
 -- Populate TeamSummary
 -- ============================================================================
 delete from TeamSummary;
