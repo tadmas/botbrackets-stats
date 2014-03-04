@@ -91,6 +91,93 @@ if ($rs->num_rows > 0) {
 $rs->close();
 
 $rs = $db->query("
+	select Games.ncaaGameNo, Games.gameDate, Games.teamA, Games.teamB, COUNT(Stats.gameId) as NumStats
+	from Games
+	left outer join Stats on Stats.gameId = Games.gameId
+	group by Games.ncaaGameNo, Games.gameDate, Games.teamA, Games.teamB
+	having COUNT(Stats.gameId) <> 2
+	order by ncaaGameNo");
+if ($rs->num_rows > 0) {
+	echo "<h2>Internal stats errors</h2>\n";
+	echo "<table>\n";
+	echo "<tr><th>#</th><th>Game Date Text</th><th>Team 1</th><th>Team 2</th><th># stats records</th></tr>\n";
+	while ($row = $rs->fetch_assoc()) {
+		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>\n",
+			$row['ncaaGameNo'],$row['gameDate'],$row['teamA'],$row['teamB'],$row['NumStats']);
+	}
+	echo "</table>\n";
+}
+$rs->close();
+
+$rs = $db->query("
+	select Games.ncaaGameNo, GameSummary.team, GameSummary.opponent, GameSummary.gameDate,
+		GameSummary.PTS, GameSummary.FGM, GameSummary.`3FG`, GameSummary.FT,
+		(GameSummary.FGM * 2 + GameSummary.`3FG` + GameSummary.FT) AS CalcPTS, null as Score
+	from GameSummary
+	join Games on Games.gameId = GameSummary.gameId
+	where GameSummary.PTS <> (GameSummary.FGM * 2 + GameSummary.`3FG` + GameSummary.FT)
+	and not exists (select * from ManualStatsVerification where ManualStatsVerification.ncaaGameNo = Games.ncaaGameNo)
+
+	union all
+
+	select Games.ncaaGameNo, GameSummary.team, GameSummary.opponent, GameSummary.gameDate,
+		GameSummary.PTS, GameSummary.FGM, GameSummary.`3FG`, GameSummary.FT,
+		null AS CalcPTS, Games.teamAScore AS Score
+	from GameSummary
+	join Games on Games.gameId = GameSummary.gameId and Games.teamA = GameSummary.team
+	where GameSummary.PTS <> Games.teamAScore
+	and not exists (select * from ManualStatsVerification where ManualStatsVerification.ncaaGameNo = Games.ncaaGameNo)
+
+	union all
+
+	select Games.ncaaGameNo, GameSummary.team, GameSummary.opponent, GameSummary.gameDate,
+		GameSummary.PTS, GameSummary.FGM, GameSummary.`3FG`, GameSummary.FT,
+		null AS CalcPTS, Games.teamBScore AS Score
+	from GameSummary
+	join Games on Games.gameId = GameSummary.gameId and Games.teamB = GameSummary.team
+	where GameSummary.PTS <> Games.teamBScore
+	and not exists (select * from ManualStatsVerification where ManualStatsVerification.ncaaGameNo = Games.ncaaGameNo)
+
+	order by ncaaGameNo");
+if ($rs->num_rows > 0) {
+	echo "<h2>Points mismatch</h2>\n";
+	echo "<table>\n";
+	echo "<tr><th>#</th><th>Game Date</th><th>Team</th><th>Opponent</th><th>PTS</th><th>Calculated PTS</th></tr>\n";
+	while ($row = $rs->fetch_assoc()) {
+		if (is_null($row['CalcPTS']))
+			printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d = Game Score</td></tr>\n",
+				$row['ncaaGameNo'],$row['gameDate'],$row['team'],$row['opponent'],$row['PTS'],$row['Score']);
+		else
+			printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d = %d FG + %d 3FG + %d FT</td></tr>\n",
+				$row['ncaaGameNo'],$row['gameDate'],$row['team'],$row['opponent'],$row['PTS'],
+				$row['CalcPTS'],$row['FGM'],$row['3FG'],$row['FT']);
+	}
+	echo "</table>\n";
+}
+$rs->close();
+
+$rs = $db->query("
+	select Games.ncaaGameNo, GameSummary.team, GameSummary.opponent, GameSummary.gameDate,
+		GameSummary.TotReb, GameSummary.OffReb, GameSummary.DefReb, (GameSummary.OffReb + GameSummary.DefReb) AS CalcTotReb
+	from GameSummary
+	join Games on Games.gameId = GameSummary.gameId
+	where GameSummary.TotReb <> (GameSummary.OffReb + GameSummary.DefReb)
+	and not exists (select * from ManualStatsVerification where ManualStatsVerification.ncaaGameNo = Games.ncaaGameNo)
+	order by Games.ncaaGameNo");
+if ($rs->num_rows > 0) {
+	echo "<h2>Rebound mismatch</h2>\n";
+	echo "<table>\n";
+	echo "<tr><th>#</th><th>Game Date</th><th>Team</th><th>Opponent</th><th>TotReb</th><th>Calculated TotReb</th></tr>\n";
+	while ($row = $rs->fetch_assoc()) {
+		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d = %d ORB + %d DRB</td></tr>\n",
+			$row['ncaaGameNo'],$row['gameDate'],$row['team'],$row['opponent'],
+			$row['TotReb'],$row['CalcTotReb'],$row['OffReb'],$row['DefReb']);
+	}
+	echo "</table>\n";
+}
+$rs->close();
+
+$rs = $db->query("
 	select Games.ncaaGameNo, Games.gameDate, Games.teamA, Games.teamB
 	from Games
 	join GameSummary on GameSummary.gameId = Games.gameId
@@ -104,6 +191,61 @@ if ($rs->num_rows > 0) {
 	while ($row = $rs->fetch_assoc()) {
 		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
 			$row['ncaaGameNo'],$row['gameDate'],$row['teamA'],$row['teamB']);
+	}
+	echo "</table>\n";
+}
+$rs->close();
+
+$rs = $db->query("
+	select Games.ncaaGameNo, GameSummary.team, GameSummary.opponent, GameSummary.gameDate, 'same day, no am/pm' as notes
+	from GameSummary
+	join Games on Games.gameId = GameSummary.gameId
+	where Games.gameDate not like '% AM' and Games.gameDate not like '% PM'
+	and exists (
+		select * from GameSummary as Other
+		where Other.team = GameSummary.team
+		and Other.gameId <> GameSummary.gameId
+		and cast(Other.gameDate as date) = cast(GameSummary.gameDate as date)
+	)
+
+	union all
+
+	select Games.ncaaGameNo, GameSummary.team, GameSummary.opponent, GameSummary.gameDate, 'start times within 3 hours' as notes
+	from GameSummary
+	join Games on Games.gameId = GameSummary.gameId
+	where exists (
+		select * from GameSummary as Other
+		where Other.team = GameSummary.team
+		and Other.gameId <> GameSummary.gameId
+		and abs(timestampdiff(HOUR, GameSummary.gameDate, Other.gameDate)) < 3
+	)
+
+	order by ncaaGameNo");
+if ($rs->num_rows > 0) {
+	echo "<h2>Date clash</h2>\n";
+	echo "<table>\n";
+	echo "<tr><th>#</th><th>Game Date</th><th>Team</th><th>Opponent</th><th>Notes</th></tr>\n";
+	while ($row = $rs->fetch_assoc()) {
+		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
+			$row['ncaaGameNo'],$row['gameDate'],$row['team'],$row['opponent'],$row['notes']);
+	}
+	echo "</table>\n";
+}
+$rs->close();
+
+$rs = $db->query("
+	select Games.ncaaGameNo, Games.gameDate, Games.teamA, Games.teamB, Stats.team
+	from Stats
+	join Games on Games.gameId = Stats.gameId
+	where Stats.team <> Games.teamA and Stats.team <> Games.teamB
+	order by ncaaGameNo");
+if ($rs->num_rows > 0) {
+	echo "<h2>Team name mismatch</h2>\n";
+	echo "<table>\n";
+	echo "<tr><th>#</th><th>Game Date Text</th><th>Team 1</th><th>Team 2</th><th>Stats Team</th></tr>\n";
+	while ($row = $rs->fetch_assoc()) {
+		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
+			$row['ncaaGameNo'],$row['gameDate'],$row['teamA'],$row['teamB'],$row['team']);
 	}
 	echo "</table>\n";
 }
@@ -151,6 +293,7 @@ if ($rs->num_rows > 0) {
 $rs->close();
 
 $db->close();
+echo "<h1>Done</h1>";
 ?>
 </body>
 </html>
