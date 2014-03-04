@@ -293,7 +293,6 @@ if ($rs->num_rows > 0) {
 $rs->close();
 
 $db->close();
-echo "<h1>Done</h1>";
 ?>
 </body>
 </html>
