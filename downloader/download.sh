@@ -51,6 +51,7 @@ PROCESSING FLAGS:
   -a   Process all files, not just missing ones. (Files are not re-downloaded.)
   -P   Process only; do not download any game files.
   -k   Download new KenPom data (used to check W/L records).
+  -g   Download the specified games by number.  List is comma delimited.
 
 MISC OPTIONS:
   -h   Show this message.
@@ -107,6 +108,16 @@ function missing_to_gamenums {
 	done
 }
 
+function gamelistarg_to_gamenums {
+	cp /dev/null "$gamenums_file"
+
+	# http://stackoverflow.com/a/918931/3750
+	IFS=',' read -ra GAMES <<< "$GAME_LIST"
+	for game_number in "${GAMES[@]}"; do
+		echo $game_number >> "$gamenums_file"
+	done
+}
+
 ###############################################################################
 # Download functions
 
@@ -138,6 +149,21 @@ function download_all_teams {
 	while read team_url; do
 		download_team_games "$team_url"
 	done
+}
+
+function download_game_list {
+	status_message "Downloading specified games..."
+	
+	gamelistarg_to_gamenums
+	gamenums_to_gameurls
+
+	if [ -s "$gameurls_file" ]; then
+		status_message "Downloading missing games:"
+		status_output_file "$gamenums_file"
+		wget $WGET_OPTIONS -nc -t 0 -w 10 --random-wait -i "$gameurls_file" -P "$STATS_DIR/original"
+	else
+		status_message "The specified games have all already been downloaded."
+	fi
 }
 
 function download_kenpom {
@@ -250,7 +276,8 @@ PROCESS_MISSING=1
 PROCESS_KENPOM=0
 MYSQL_PASSWORD=
 FIXUP_FILE=
-while getopts ":O:y:p:f:aPkhqQ" OPTION; do
+GAME_LIST=
+while getopts ":O:y:p:f:aPkg:hqQ" OPTION; do
 	case $OPTION in
 		O)
 			STATS_DIR="$OPTARG"
@@ -272,6 +299,9 @@ while getopts ":O:y:p:f:aPkhqQ" OPTION; do
 			;;
 		k)
 			PROCESS_KENPOM=1
+			;;
+		g)
+			GAME_LIST="$OPTARG"
 			;;
 		h)
 			usage
@@ -313,7 +343,11 @@ fi
 create_output_directories 
 
 if [[ $SKIP_DOWNLOAD = 0 ]]; then
-	download_all_teams
+	if [[ -z $GAME_LIST ]]; then
+		download_all_teams
+	else
+		download_game_list
+	fi
 fi
 
 if [[ $PROCESS_KENPOM = 1 ]]; then
