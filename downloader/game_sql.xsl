@@ -41,7 +41,7 @@
 			<xsl:text>','</xsl:text>
 			<xsl:for-each select="//html:td[contains(text(),'Location:')]">
 				<xsl:call-template name="double-single-quotes">
-					<xsl:with-param name="text" select="../html:td[position()=last()]"/>
+					<xsl:with-param name="text" select="translate(../html:td[position()=last()],'\','')"/>
 				</xsl:call-template>
 			</xsl:for-each>
 
