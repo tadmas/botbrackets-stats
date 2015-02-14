@@ -194,6 +194,7 @@ function clean_games {
 			-e "s/[\<]Strahan/Strahan/g" \
 			-e "s/[\<]Cameron/Cameron/g" \
 			-e "s/[\<]Stroh/Stroh/g" \
+			-e "s/[\<]Carnesecca/Carnesecca/g" \
 		"$STATS_DIR/original/$game_number" >| "$STATS_DIR/cleaned/$game_number"
 	done < "$gamenums_file"
 }
