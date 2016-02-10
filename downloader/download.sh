@@ -195,12 +195,14 @@ function clean_games {
 			-e "s/\<R\>//g" \
 			-e "s/\<O\>//g" \
 			-e "s/\<rules//g" \
+			-e "s/[\<]note/note/g" \
 			-e "s/[\<]Liacouras/Liacouras/g" \
 			-e "s/[\<]INTRUST/INTRUST/g" \
 			-e "s/[\<]Strahan/Strahan/g" \
 			-e "s/[\<]Cameron/Cameron/g" \
 			-e "s/[\<]Stroh/Stroh/g" \
 			-e "s/[\<]Carnesecca/Carnesecca/g" \
+			-e "s/[\<]University/University/g" \
 		"$STATS_DIR/original/$game_number" >| "$STATS_DIR/cleaned/$game_number"
 	done < "$gamenums_file"
 }
