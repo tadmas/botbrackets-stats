@@ -46,6 +46,7 @@ PARAMETERS:
   -y   Academic year of statistics to download.
   -p   Password to the stats database.
   -f   Fixup file for game stats.
+  -b   Blacklist file; lists game numbers to not download.
 
 PROCESSING FLAGS:
   -a   Process all files, not just missing ones. (Files are not re-downloaded.)
@@ -79,6 +80,11 @@ function status_output_file {
 # File methods
 
 function gamenums_to_gameurls {
+	if [[ -n $BLACKLIST_FILE ]]; then
+		# can use gameurls as a temporary file since we're about to overwrite it anyway
+		sort "$gamenums_file" >| "$gameurls_file"
+		comm -23 "$gameurls_file" <(sort "$BLACKLIST_FILE") >| "$gamenums_file"
+	fi
 	sed "s/^/http:\/\/stats.ncaa.org\/game\/index\//" "$gamenums_file" >| "$gameurls_file"
 }
 
@@ -277,8 +283,9 @@ PROCESS_MISSING=1
 PROCESS_KENPOM=0
 MYSQL_PASSWORD=
 FIXUP_FILE=
+BLACKLIST_FILE=
 GAME_LIST=
-while getopts ":O:y:p:f:aPkg:hqQ" OPTION; do
+while getopts ":O:y:p:f:b:aPkg:hqQ" OPTION; do
 	case $OPTION in
 		O)
 			STATS_DIR="$OPTARG"
@@ -291,6 +298,9 @@ while getopts ":O:y:p:f:aPkg:hqQ" OPTION; do
 			;;
 		f)
 			FIXUP_FILE="$OPTARG"
+			;;
+		b)
+			BLACKLIST_FILE="$OPTARG"
 			;;
 		a)
 			PROCESS_MISSING=0
