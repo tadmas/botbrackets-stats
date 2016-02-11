@@ -85,7 +85,7 @@ function gamenums_to_gameurls {
 		sort "$gamenums_file" >| "$gameurls_file"
 		comm -23 "$gameurls_file" <(sort "$BLACKLIST_FILE") >| "$gamenums_file"
 	fi
-	sed "s/^/http:\/\/stats.ncaa.org\/game\/index\//" "$gamenums_file" >| "$gameurls_file"
+	sed "s/^/http:\/\/stats.ncaa.org\/game\/period_stats\//" "$gamenums_file" >| "$gameurls_file"
 }
 
 function gamelist_to_gamenums {

@@ -13,7 +13,7 @@
 		<xsl:text>insert into Games(ncaaGameNo,teamA,teamAScore,teamB,teamBScore,gameDate,location) values (</xsl:text>
 			<xsl:value-of select="$GAMENO"/>
 
-			<xsl:for-each select="//html:td[text()='1st Half']">
+			<xsl:for-each select="//html:td[text()='1st Half' and position()=2]">
 				<xsl:for-each select="../../html:tr[(position() = 2) or (position() = 3)]">
 					<xsl:text>,'</xsl:text>
 					<xsl:choose>
@@ -50,18 +50,15 @@
 
 		<xsl:text>set @gameId = LAST_INSERT_ID();</xsl:text>
 
-		<xsl:for-each select="html:table/html:tr[position()=last()]">
-			<xsl:if test="html:td[position()=1] = 'Totals'">
-				<xsl:text>insert into Stats(gameId,team,Minutes,FGM,FGA,`3FG`,`3FGA`,FT,FTA,PTS,OffReb,DefReb,TotReb,AST,`TO`,ST,BLKS,Fouls) values(</xsl:text>
+		<xsl:for-each select="//html:td[text()='Game Stats' and position()=1]/../../html:tr[position()=3 or position()=4]">
+			<xsl:if test="html:td[position()=1] != 'Team'">
+				<xsl:text>insert into Stats(gameId,team,FGM,FGA,`3FG`,`3FGA`,FT,FTA,PTS,OffReb,DefReb,TotReb,AST,`TO`,ST,BLKS,Fouls) values(</xsl:text>
 					<xsl:text>@gameId,'</xsl:text>
 					<xsl:call-template name="double-single-quotes">
-						<xsl:with-param name="text" select="normalize-space(../html:tr[position()=1]/html:td[position()=1])"/>
+						<xsl:with-param name="text" select="normalize-space(html:td[position()=1])"/>
 					</xsl:call-template>
-					<xsl:text>',</xsl:text>
-					<xsl:call-template name="min-sec-to-just-min">
-						<xsl:with-param name="text" select="html:td[position()=3]"/>
-					</xsl:call-template>
-					<xsl:for-each select="html:td[position()&gt;3]">
+					<xsl:text>'</xsl:text>
+					<xsl:for-each select="html:td[position()&gt;1 and position()!=last()]">
 						<xsl:text>,</xsl:text>
 						<xsl:call-template name="numeric-stats-value">
 							<xsl:with-param name="text" select="translate(.,'*/','')"/>
@@ -86,18 +83,6 @@
 			<xsl:call-template name="double-single-quotes">
 				<xsl:with-param name="text" select="substring-after($text, $sq)"/>
 			</xsl:call-template>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:value-of select="$text"/>
-		</xsl:otherwise>
-	</xsl:choose>
-</xsl:template>
-
-<xsl:template name="min-sec-to-just-min">
-	<xsl:param name="text"/>
-	<xsl:choose>
-		<xsl:when test="contains($text, ':')">
-			<xsl:value-of select="substring-before($text,':')"/>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="$text"/>
