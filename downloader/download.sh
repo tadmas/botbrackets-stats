@@ -151,7 +151,7 @@ function download_all_teams {
 	wget $WGET_OPTIONS -O "$teamlist_file" "http://stats.ncaa.org/team/inst_team_list?academic_year=$STATS_YEAR&conf_id=-1&division=1&sport_code=MBB"
 
 	sed "s/</\n</g" "$teamlist_file" | \
-	sed -n "s/<a href=.\/team\/index\/\([0-9][0-9]*[?]org_id=[0-9]*\).*$/http:\/\/stats.ncaa.org\/team\/index\/\1/p" | \
+	sed -n "s/<a href=.\/team\/\([0-9][0-9]*\/[0-9][0-9]*\).*$/http:\/\/stats.ncaa.org\/team\/\1/p" | \
 	while read team_url; do
 		download_team_games "$team_url"
 	done
