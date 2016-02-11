@@ -9,7 +9,7 @@
 <xsl:variable name="dsq">''</xsl:variable>
 
 <xsl:template match="/">
-	<xsl:for-each select="html:html/html:body/html:div[@id='contentArea']">
+	<xsl:for-each select="html:html/html:body/html:div[@id='contentArea' or @id='contentarea']">
 		<xsl:text>insert into Games(ncaaGameNo,teamA,teamAScore,teamB,teamBScore,gameDate,location) values (</xsl:text>
 			<xsl:value-of select="$GAMENO"/>
 
