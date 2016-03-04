@@ -127,9 +127,13 @@ function gamelistarg_to_gamenums {
 ###############################################################################
 # Download functions
 
+function wget_stats {
+	wget $WGET_OPTIONS --user-agent="Mozilla/5.0" $@
+}
+
 function download_team_games {
 	status_message "Downloading game list from $1"
-	wget $WGET_OPTIONS -O "$gamelist_file" "$1"
+	wget_stats -O "$gamelist_file" "$1"
 	status_message "Game list downloaded."
 
 	sleep 3
@@ -140,7 +144,7 @@ function download_team_games {
 	if [ -s "$gameurls_file" ]; then
 		status_message "Downloading missing games:"
 		status_output_file "$gamenums_file"
-		wget $WGET_OPTIONS -nc -t 0 -w 10 --random-wait -i "$gameurls_file" -P "$STATS_DIR/original"
+		wget_stats -nc -t 0 -w 10 --random-wait -i "$gameurls_file" -P "$STATS_DIR/original"
 	else
 		status_message "The games for this team are all already downloaded."
 	fi
@@ -148,7 +152,7 @@ function download_team_games {
 
 function download_all_teams {
 	status_message "Downloading team list..."
-	wget $WGET_OPTIONS -O "$teamlist_file" "http://stats.ncaa.org/team/inst_team_list?academic_year=$STATS_YEAR&conf_id=-1&division=1&sport_code=MBB"
+	wget_stats -O "$teamlist_file" "http://stats.ncaa.org/team/inst_team_list?academic_year=$STATS_YEAR&conf_id=-1&division=1&sport_code=MBB"
 
 	sed "s/</\n</g" "$teamlist_file" | \
 	sed -n "s/<a href=.\/team\/\([0-9][0-9]*\/[0-9][0-9]*\).*$/http:\/\/stats.ncaa.org\/team\/\1/p" | \
@@ -166,7 +170,7 @@ function download_game_list {
 	if [ -s "$gameurls_file" ]; then
 		status_message "Downloading missing games:"
 		status_output_file "$gamenums_file"
-		wget $WGET_OPTIONS -nc -t 0 -w 10 --random-wait -i "$gameurls_file" -P "$STATS_DIR/original"
+		wget_stats -nc -t 0 -w 10 --random-wait -i "$gameurls_file" -P "$STATS_DIR/original"
 	else
 		status_message "The specified games have all already been downloaded."
 	fi
@@ -278,7 +282,7 @@ function process_kenpom_file {
 SCRIPT_DIR="$(dirname "$0")"
 STATS_YEAR=
 STATS_DIR=
-WGET_OPTIONS=--user-agent="Mozilla/5.0"
+WGET_OPTIONS=
 QUIET_MODE=0
 SKIP_DOWNLOAD=0
 PROCESS_MISSING=1
