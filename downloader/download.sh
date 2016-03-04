@@ -278,7 +278,7 @@ function process_kenpom_file {
 SCRIPT_DIR="$(dirname "$0")"
 STATS_YEAR=
 STATS_DIR=
-WGET_OPTIONS=
+WGET_OPTIONS=--user-agent="Mozilla/5.0"
 QUIET_MODE=0
 SKIP_DOWNLOAD=0
 PROCESS_MISSING=1
