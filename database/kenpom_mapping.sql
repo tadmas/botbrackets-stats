@@ -198,7 +198,7 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Norfolk St.','Norfolk St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('North Carolina','North Carolina');
 insert into KenPomMapping(Team,ncaaTeam) values ('North Carolina A&T','N.C. A&T');
 insert into KenPomMapping(Team,ncaaTeam) values ('North Carolina Central','N.C. Central');
-insert into KenPomMapping(Team,ncaaTeam) values ('North Carolina St.','North Carolina St.');
+insert into KenPomMapping(Team,ncaaTeam) values ('North Carolina St.','NC State');
 insert into KenPomMapping(Team,ncaaTeam) values ('North Dakota','North Dakota');
 insert into KenPomMapping(Team,ncaaTeam) values ('North Dakota St.','North Dakota St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('North Florida','North Florida');
@@ -245,7 +245,7 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Sacramento St.','Sacramento St
 insert into KenPomMapping(Team,ncaaTeam) values ('Sacred Heart','Sacred Heart');
 insert into KenPomMapping(Team,ncaaTeam) values ('Saint Joseph''s','Saint Joseph''s');
 insert into KenPomMapping(Team,ncaaTeam) values ('Saint Louis','Saint Louis');
-insert into KenPomMapping(Team,ncaaTeam) values ('Saint Mary''s','St. Mary''s (CA)');
+insert into KenPomMapping(Team,ncaaTeam) values ('Saint Mary''s','Saint Mary''s (CA)');
 insert into KenPomMapping(Team,ncaaTeam) values ('Saint Peter''s','Saint Peter''s');
 insert into KenPomMapping(Team,ncaaTeam) values ('Sam Houston St.','Sam Houston St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Samford','Samford');
@@ -289,7 +289,7 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Tennessee St.','Tennessee St.'
 insert into KenPomMapping(Team,ncaaTeam) values ('Tennessee Tech','Tennessee Tech');
 insert into KenPomMapping(Team,ncaaTeam) values ('Texas','Texas');
 insert into KenPomMapping(Team,ncaaTeam) values ('Texas A&M','Texas A&M');
-insert into KenPomMapping(Team,ncaaTeam) values ('Texas A&M Corpus Chris','A&M-Corpus Chris');
+insert into KenPomMapping(Team,ncaaTeam) values ('Texas A&M Corpus Chris','A&M-Corpus Christi');
 insert into KenPomMapping(Team,ncaaTeam) values ('Texas Southern','Texas Southern');
 insert into KenPomMapping(Team,ncaaTeam) values ('Texas St.','Texas St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Texas Tech','Texas Tech');
