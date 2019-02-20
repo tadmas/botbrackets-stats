@@ -269,7 +269,7 @@ function create_json_file {
 
 function process_kenpom_file {
 	status_message "Running tidy on KenPom file..."
-	tidy -b -n -q -asxml -o "$kenpom_tidy_file" "$kenpom_raw_file" 2>/dev/null >/dev/null
+	tidy -b -n -q -asxml --new-blocklevel-tags nav -o "$kenpom_tidy_file" "$kenpom_raw_file" 2>/dev/null >/dev/null
 	status_message "Running XSL on KenPom file..."
 	xsltproc -o "$kenpom_sql_file" --novalid --nonet "$SCRIPT_DIR/kenpom_sql.xsl" "$kenpom_tidy_file"
 	status_message "Importing KenPom data into database..."
