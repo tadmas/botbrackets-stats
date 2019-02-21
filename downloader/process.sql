@@ -12,6 +12,9 @@ update Games set gameDate = REPLACE(gameDate, 'A.M', 'AM') where gameDate like '
 update Games set gameDate = REPLACE(gameDate, 'AM.', 'AM') where gameDate like '%AM.%';
 update Games set gameDate = REPLACE(gameDate, 'PM.', 'PM') where gameDate like '%PM.%';
 
+-- Remove "TBA"
+update Games set gameDate = REPLACE(gameDate, ' TBA', '') where gameDate like '% TBA';
+
 -- Remove timezones
 update Games set gameDate = REPLACE(gameDate, 'EST', '') where gameDate like '%EST%';
 update Games set gameDate = REPLACE(gameDate, 'CST', '') where gameDate like '%CST%';
