@@ -7,6 +7,7 @@ set -C
 
 teamlist_file=$(mktemp -t teamlist.$$.XXXXXXXXXX)
 gamelist_file=$(mktemp -t gamelist.$$.XXXXXXXXXX)
+gamebygame_file=$(mktemp -t gamebygame.$$.XXXXXXXXXX)
 gamenums_file=$(mktemp -t gamenums.$$.XXXXXXXXXX)
 gameurls_file=$(mktemp -t gameurls.$$.XXXXXXXXXX)
 kenpom_raw_file=$(mktemp -t kenpomraw.$$.XXXXXXXXXX)
@@ -16,6 +17,7 @@ kenpom_sql_file=$(mktemp -t kenpomsql.$$.XXXXXXXXXX)
 function cleanup {
   rm "$teamlist_file"
   rm "$gamelist_file"
+  rm "$gamebygame_file"
   rm "$gamenums_file"
   rm "$gameurls_file"
   rm "$kenpom_raw_file"
@@ -88,10 +90,21 @@ function gamenums_to_gameurls {
 	sed "s/^/http:\/\/stats.ncaa.org\/game\/period_stats\//" "$gamenums_file" >| "$gameurls_file"
 }
 
-function gamelist_to_gamenums {
+function gamelist_to_gamebygame {
+	cp /dev/null "$gamebygame_file"
+
+	team_url=$(sed "s/</\n</g" "$gamelist_file" | \
+		sed -n "s/<a href=.\(\/player\/game_by_game\?[^>]*\).>.*$/\1/p")
+
+	status_message "Downloading game by game from http://stats.ncaa.org$team_url"
+	wget_stats -O "$gamebygame_file" "http://stats.ncaa.org$team_url"
+	status_message "Game by game file downloaded."
+}
+
+function gamebygame_to_gamenums {
 	cp /dev/null "$gamenums_file"
 
-	sed "s/</\n</g" "$gamelist_file" | \
+	sed "s/</\n</g" "$gamebygame_file" | \
 	sed -n "s/<a href=.\/game\/index\/\([0-9]*\)\?.*$/\1/p" | \
 	while read game_number; do
 		if [ ! -f "$STATS_DIR/original/$game_number" ]; then
@@ -136,9 +149,13 @@ function download_team_games {
 	wget_stats -O "$gamelist_file" "$1"
 	status_message "Game list downloaded."
 
-	sleep 3
+	sleep 1
 
-	gamelist_to_gamenums
+	gamelist_to_gamebygame
+
+	sleep 2
+
+	gamebygame_to_gamenums
 	gamenums_to_gameurls
 
 	if [ -s "$gameurls_file" ]; then

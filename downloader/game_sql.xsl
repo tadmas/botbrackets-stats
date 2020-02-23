@@ -18,12 +18,12 @@
 					<xsl:text>,'</xsl:text>
 					<xsl:choose>
 						<xsl:when test="./html:td/html:a[starts-with(@href,'/team/')]">
-							<xsl:call-template name="double-single-quotes">
+							<xsl:call-template name="parse-team-name">
 								<xsl:with-param name="text" select="normalize-space(./html:td/html:a)"/>
 							</xsl:call-template>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:call-template name="double-single-quotes">
+							<xsl:call-template name="parse-team-name">
 								<xsl:with-param name="text" select="normalize-space(./html:td)" />
 							</xsl:call-template>
 						</xsl:otherwise>
@@ -54,11 +54,11 @@
 			<xsl:if test="html:td[position()=1] != 'Team'">
 				<xsl:text>insert into Stats(gameId,team,FGM,FGA,`3FG`,`3FGA`,FT,FTA,PTS,OffReb,DefReb,TotReb,AST,`TO`,ST,BLKS,Fouls) values(</xsl:text>
 					<xsl:text>@gameId,'</xsl:text>
-					<xsl:call-template name="double-single-quotes">
+					<xsl:call-template name="parse-team-name">
 						<xsl:with-param name="text" select="normalize-space(html:td[position()=1])"/>
 					</xsl:call-template>
 					<xsl:text>'</xsl:text>
-					<xsl:for-each select="html:td[position()&gt;1 and position()!=last()]">
+					<xsl:for-each select="html:td[position()&gt;1 and position()&lt;17]">
 						<xsl:text>,</xsl:text>
 						<xsl:call-template name="numeric-stats-value">
 							<xsl:with-param name="text" select="translate(.,'*/','')"/>
@@ -72,6 +72,35 @@
 
 <xsl:template match="*">
 	<!-- Override the default rule, which would include the rest of the file as text. -->
+</xsl:template>
+
+<xsl:template name="parse-team-name">
+	<xsl:param name="text"/>
+	<xsl:variable name="recordremoved">
+		<xsl:call-template name="remove-record">
+			<xsl:with-param name="text" select="$text"/>
+		</xsl:call-template>
+	</xsl:variable>
+	<xsl:call-template name="double-single-quotes">
+		<xsl:with-param name="text" select="normalize-space($recordremoved)"/>
+	</xsl:call-template>
+</xsl:template>
+
+<xsl:template name="remove-record">
+	<xsl:param name="text"/>
+	<xsl:choose>
+		<xsl:when test="translate($text, '(-0123456789) ', '') = ''"/>
+		<xsl:when test="contains($text, ' ')">
+			<xsl:value-of select="substring-before($text, ' ')"/>
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="remove-record">
+				<xsl:with-param name="text" select="substring-after($text, ' ')"/>
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$text"/>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template name="double-single-quotes">
