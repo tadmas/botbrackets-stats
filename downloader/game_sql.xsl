@@ -91,8 +91,13 @@
 	<xsl:choose>
 		<xsl:when test="translate($text, '(-0123456789) ', '') = ''"/>
 		<xsl:when test="contains($text, ' ')">
-			<xsl:value-of select="substring-before($text, ' ')"/>
-			<xsl:text> </xsl:text>
+			<xsl:choose>
+				<xsl:when test="translate(substring-before($text, ' '), '#0123456789', '') = ''"/>
+				<xsl:otherwise>
+					<xsl:value-of select="substring-before($text, ' ')"/>
+					<xsl:text> </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
 			<xsl:call-template name="remove-record">
 				<xsl:with-param name="text" select="substring-after($text, ' ')"/>
 			</xsl:call-template>
