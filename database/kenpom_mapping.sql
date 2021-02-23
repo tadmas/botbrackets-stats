@@ -20,6 +20,7 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Austin Peay','Austin Peay');
 insert into KenPomMapping(Team,ncaaTeam) values ('Ball St.','Ball St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Baylor','Baylor');
 insert into KenPomMapping(Team,ncaaTeam) values ('Belmont','Belmont');
+--This school canceled their 2020-2021 season; comment out so we can restore easily next year.
 insert into KenPomMapping(Team,ncaaTeam) values ('Bethune Cookman','Bethune-Cookman');
 insert into KenPomMapping(Team,ncaaTeam) values ('Binghamton','Binghamton');
 insert into KenPomMapping(Team,ncaaTeam) values ('Boise St.','Boise St.');
@@ -27,7 +28,8 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Boston College','Boston Colleg
 insert into KenPomMapping(Team,ncaaTeam) values ('Boston University','Boston U.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Bowling Green','Bowling Green');
 insert into KenPomMapping(Team,ncaaTeam) values ('Bradley','Bradley');
-insert into KenPomMapping(Team,ncaaTeam) values ('Brown','Brown');
+--Ivy League canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Brown','Brown');
 insert into KenPomMapping(Team,ncaaTeam) values ('Bryant','Bryant');
 insert into KenPomMapping(Team,ncaaTeam) values ('Bucknell','Bucknell');
 insert into KenPomMapping(Team,ncaaTeam) values ('Buffalo','Buffalo');
@@ -56,10 +58,12 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Coastal Carolina','Coastal Car
 insert into KenPomMapping(Team,ncaaTeam) values ('Colgate','Colgate');
 insert into KenPomMapping(Team,ncaaTeam) values ('Colorado','Colorado');
 insert into KenPomMapping(Team,ncaaTeam) values ('Colorado St.','Colorado St.');
-insert into KenPomMapping(Team,ncaaTeam) values ('Columbia','Columbia');
+--Ivy League canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Columbia','Columbia');
 insert into KenPomMapping(Team,ncaaTeam) values ('Connecticut','UConn');
 insert into KenPomMapping(Team,ncaaTeam) values ('Coppin St.','Coppin St.');
-insert into KenPomMapping(Team,ncaaTeam) values ('Cornell','Cornell');
+--Ivy League canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Cornell','Cornell');
 insert into KenPomMapping(Team,ncaaTeam) values ('Creighton','Creighton');
 insert into KenPomMapping(Team,ncaaTeam) values ('Dartmouth','Dartmouth');
 insert into KenPomMapping(Team,ncaaTeam) values ('Davidson','Davidson');
@@ -106,7 +110,8 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Grand Canyon','Grand Canyon');
 insert into KenPomMapping(Team,ncaaTeam) values ('Green Bay','Green Bay');
 insert into KenPomMapping(Team,ncaaTeam) values ('Hampton','Hampton');
 insert into KenPomMapping(Team,ncaaTeam) values ('Hartford','Hartford');
-insert into KenPomMapping(Team,ncaaTeam) values ('Harvard','Harvard');
+--Ivy League canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Harvard','Harvard');
 insert into KenPomMapping(Team,ncaaTeam) values ('Hawaii','Hawaii');
 insert into KenPomMapping(Team,ncaaTeam) values ('High Point','High Point');
 insert into KenPomMapping(Team,ncaaTeam) values ('Hofstra','Hofstra');
@@ -159,7 +164,8 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Marist','Marist');
 insert into KenPomMapping(Team,ncaaTeam) values ('Marquette','Marquette');
 insert into KenPomMapping(Team,ncaaTeam) values ('Marshall','Marshall');
 insert into KenPomMapping(Team,ncaaTeam) values ('Maryland','Maryland');
-insert into KenPomMapping(Team,ncaaTeam) values ('Maryland Eastern Shore','UMES');
+--This school canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Maryland Eastern Shore','UMES');
 insert into KenPomMapping(Team,ncaaTeam) values ('Massachusetts','Massachusetts');
 insert into KenPomMapping(Team,ncaaTeam) values ('McNeese St.','McNeese');
 insert into KenPomMapping(Team,ncaaTeam) values ('Memphis','Memphis');
@@ -224,7 +230,8 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Oral Roberts','Oral Roberts');
 insert into KenPomMapping(Team,ncaaTeam) values ('Oregon','Oregon');
 insert into KenPomMapping(Team,ncaaTeam) values ('Oregon St.','Oregon St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Pacific','Pacific');
-insert into KenPomMapping(Team,ncaaTeam) values ('Penn','Penn');
+--Ivy League canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Penn','Penn');
 insert into KenPomMapping(Team,ncaaTeam) values ('Penn St.','Penn St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Pepperdine','Pepperdine');
 insert into KenPomMapping(Team,ncaaTeam) values ('Pittsburgh','Pittsburgh');
@@ -232,7 +239,8 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Portland','Portland');
 insert into KenPomMapping(Team,ncaaTeam) values ('Portland St.','Portland St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Prairie View A&M','Prairie View');
 insert into KenPomMapping(Team,ncaaTeam) values ('Presbyterian','Presbyterian');
-insert into KenPomMapping(Team,ncaaTeam) values ('Princeton','Princeton');
+--Ivy League canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Princeton','Princeton');
 insert into KenPomMapping(Team,ncaaTeam) values ('Providence','Providence');
 insert into KenPomMapping(Team,ncaaTeam) values ('Purdue','Purdue');
 insert into KenPomMapping(Team,ncaaTeam) values ('Purdue Fort Wayne','Purdue Fort Wayne');
@@ -350,5 +358,6 @@ insert into KenPomMapping(Team,ncaaTeam) values ('Wofford','Wofford');
 insert into KenPomMapping(Team,ncaaTeam) values ('Wright St.','Wright St.');
 insert into KenPomMapping(Team,ncaaTeam) values ('Wyoming','Wyoming');
 insert into KenPomMapping(Team,ncaaTeam) values ('Xavier','Xavier');
-insert into KenPomMapping(Team,ncaaTeam) values ('Yale','Yale');
+--Ivy League canceled their 2020-2021 season; comment out so we can restore easily next year.
+--insert into KenPomMapping(Team,ncaaTeam) values ('Yale','Yale');
 insert into KenPomMapping(Team,ncaaTeam) values ('Youngstown St.','Youngstown St.');
