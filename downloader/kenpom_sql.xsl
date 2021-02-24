@@ -29,6 +29,7 @@
 		</xsl:for-each>
 	</xsl:for-each>
 	<xsl:text>update KenPom set ncaaTeam = (select ncaaTeam from KenPomMapping where KenPomMapping.Team = KenPom.Team limit 1);</xsl:text>
+	<xsl:text>delete from KenPom where W = 0 and L = 0;</xsl:text>
 </xsl:template>
 
 <xsl:template match="*">

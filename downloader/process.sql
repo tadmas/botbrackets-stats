@@ -140,7 +140,7 @@ inner join (
 ) as OppTotals on OppTotals.team = WLData.team;
 
 -- Remove teams outside Division I
-delete from TeamSummary where (W + L) < 10;
+delete from TeamSummary where (W + L) < 5; -- temporarily reduced from 10 to 5 due to 2021 coronavirus
 
 -- ============================================================================
 -- Populate GameSummary
