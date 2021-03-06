@@ -142,6 +142,36 @@ inner join (
 -- Remove teams outside Division I
 delete from TeamSummary where (W + L) < 5; -- temporarily reduced from 10 to 5 due to 2021 coronavirus
 
+-- TEMPORARY LOGIC: Remove NAIA schools with >= 5 games
+delete from TeamSummary where name in (
+	'Benedictine Mesa',
+	'Col. of Idaho',
+	'Columbia Int''l',
+	'Fla. National',
+	'Northwest (WA)',
+	'Our Lady of the Lake',
+	'St. Katherine',
+	'William Jessup');
+
+-- Remove Division 2 schools with >= 5 games
+delete from TeamSummary where name in (
+	'Flagler',
+	'Fresno Pacific');
+
+-- Remove Division 3 schools with >= 5 games
+delete from TeamSummary where name in (
+	'Greensboro',
+	'LeTourneau',
+	'N.C. Wesleyan',
+	'Transylvania');
+
+-- Remove community colleges with >= 5 games
+delete from TeamSummary where name in (
+	'Bethesda (CA)',
+	'Carver',
+	'Champion Chris.',
+	'Dallas Christian');
+
 -- ============================================================================
 -- Populate GameSummary
 -- ============================================================================
