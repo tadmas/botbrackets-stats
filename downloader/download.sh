@@ -105,7 +105,7 @@ function gamebygame_to_gamenums {
 	cp /dev/null "$gamenums_file"
 
 	sed "s/</\n</g" "$gamebygame_file" | \
-	sed -n "s/<a href=.\/game\/index\/\([0-9]*\)\?.*$/\1/p" | \
+	sed -n "s/<a[^>]* href=.\/game\/index\/\([0-9]*\)\?.*$/\1/p" | \
 	while read game_number; do
 		if [ ! -f "$STATS_DIR/original/$game_number" ]; then
 			echo $game_number >> "$gamenums_file"
