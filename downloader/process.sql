@@ -142,6 +142,9 @@ inner join (
 -- Remove teams outside Division I
 delete from TeamSummary where (W + L) < 10;
 
+-- Remove community colleges that have enough games to survive delete above.
+delete from TeamSummary where name in ('Bethesda (CA)', 'Carver');
+
 -- ============================================================================
 -- Populate GameSummary
 -- ============================================================================
