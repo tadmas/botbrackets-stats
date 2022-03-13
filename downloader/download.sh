@@ -195,7 +195,7 @@ function download_game_list {
 
 function download_kenpom {
 	status_message "Downloading KenPom file..."
-	wget $WGET_OPTIONS -O "$kenpom_raw_file" "http://kenpom.com"
+	wget $WGET_OPTIONS --inet4-only -O "$kenpom_raw_file" "https://kenpom.com"
 }
 
 ###############################################################################
