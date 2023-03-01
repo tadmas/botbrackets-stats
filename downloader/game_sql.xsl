@@ -76,9 +76,14 @@
 
 <xsl:template name="parse-team-name">
 	<xsl:param name="text"/>
+	<xsl:variable name="italicsremoved">
+		<xsl:call-template name="remove-italics">
+			<xsl:with-param name="text" select="$text"/>
+		</xsl:call-template>
+	</xsl:variable>
 	<xsl:variable name="recordremoved">
 		<xsl:call-template name="remove-record">
-			<xsl:with-param name="text" select="$text"/>
+			<xsl:with-param name="text" select="$italicsremoved"/>
 		</xsl:call-template>
 	</xsl:variable>
 	<xsl:call-template name="double-single-quotes">
@@ -101,6 +106,18 @@
 			<xsl:call-template name="remove-record">
 				<xsl:with-param name="text" select="substring-after($text, ' ')"/>
 			</xsl:call-template>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$text"/>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template name="remove-italics">
+	<xsl:param name="text"/>
+	<xsl:choose>
+		<xsl:when test="contains($text, '&lt;i&gt;')">
+			<xsl:value-of select="substring-before($text, '&lt;i&gt;')" />
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="$text"/>
