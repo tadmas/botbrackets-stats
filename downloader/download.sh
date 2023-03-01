@@ -180,7 +180,7 @@ function download_gamenums {
 
 function download_kenpom {
 	status_message "Downloading KenPom file..."
-	wget $WGET_OPTIONS --inet4-only -O "$kenpom_raw_file" "https://kenpom.com"
+	wget_stats $WGET_OPTIONS --inet4-only -O "$kenpom_raw_file" "https://kenpom.com"
 }
 
 ###############################################################################
