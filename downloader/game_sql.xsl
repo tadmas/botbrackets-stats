@@ -50,15 +50,15 @@
 
 		<xsl:text>set @gameId = LAST_INSERT_ID();</xsl:text>
 
-		<xsl:for-each select="//html:td[text()='Game Stats' and position()=1]/../../html:tr[position()=3 or position()=4]">
-			<xsl:if test="html:td[position()=1] != 'Team'">
+		<xsl:for-each select="//html:table/html:tr[position()=last()]">
+			<xsl:if test="html:td[position()=1] = 'Totals'">
 				<xsl:text>insert into Stats(gameId,team,FGM,FGA,`3FG`,`3FGA`,FT,FTA,PTS,OffReb,DefReb,TotReb,AST,`TO`,ST,BLKS,Fouls) values(</xsl:text>
 					<xsl:text>@gameId,'</xsl:text>
 					<xsl:call-template name="parse-team-name">
-						<xsl:with-param name="text" select="normalize-space(html:td[position()=1])"/>
+						<xsl:with-param name="text" select="normalize-space(../html:tr[position()=1]/html:td[position()=1])"/>
 					</xsl:call-template>
 					<xsl:text>'</xsl:text>
-					<xsl:for-each select="html:td[position()&gt;1 and position()&lt;17]">
+					<xsl:for-each select="html:td[position()&gt;4 and position()&lt;20]">
 						<xsl:text>,</xsl:text>
 						<xsl:call-template name="numeric-stats-value">
 							<xsl:with-param name="text" select="translate(.,'*/','')"/>

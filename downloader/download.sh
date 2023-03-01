@@ -7,9 +7,8 @@ set -C
 
 teamlist_file=$(mktemp -t teamlist.$$.XXXXXXXXXX)
 gamelist_file=$(mktemp -t gamelist.$$.XXXXXXXXXX)
-gamebygame_file=$(mktemp -t gamebygame.$$.XXXXXXXXXX)
 gamenums_file=$(mktemp -t gamenums.$$.XXXXXXXXXX)
-gameurls_file=$(mktemp -t gameurls.$$.XXXXXXXXXX)
+bltemp_file=$(mktemp -t bltemp.$$.XXXXXXXXXX)
 kenpom_raw_file=$(mktemp -t kenpomraw.$$.XXXXXXXXXX)
 kenpom_tidy_file=$(mktemp -t kenpomtidy.$$.XXXXXXXXXX)
 kenpom_sql_file=$(mktemp -t kenpomsql.$$.XXXXXXXXXX)
@@ -17,9 +16,8 @@ kenpom_sql_file=$(mktemp -t kenpomsql.$$.XXXXXXXXXX)
 function cleanup {
   rm "$teamlist_file"
   rm "$gamelist_file"
-  rm "$gamebygame_file"
   rm "$gamenums_file"
-  rm "$gameurls_file"
+  rm "$bltemp_file"
   rm "$kenpom_raw_file"
   rm "$kenpom_tidy_file"
   rm "$kenpom_sql_file"
@@ -81,31 +79,10 @@ function status_output_file {
 ###############################################################################
 # File methods
 
-function gamenums_to_gameurls {
-	if [[ -n $BLACKLIST_FILE ]]; then
-		# can use gameurls as a temporary file since we're about to overwrite it anyway
-		sort "$gamenums_file" >| "$gameurls_file"
-		comm -23 "$gameurls_file" <(sort "$BLACKLIST_FILE") >| "$gamenums_file"
-	fi
-	sed "s/^/http:\/\/stats.ncaa.org\/game\/period_stats\//" "$gamenums_file" >| "$gameurls_file"
-}
-
-function gamelist_to_gamebygame {
-	cp /dev/null "$gamebygame_file"
-
-	team_url=$(sed "s/</\n</g" "$gamelist_file" | \
-		sed -n "s/<a href=.\(\/player\/game_by_game\?[^>]*\).>.*$/\1/p")
-
-	status_message "Downloading game by game from http://stats.ncaa.org$team_url"
-	wget_stats -O "$gamebygame_file" "http://stats.ncaa.org$team_url"
-	status_message "Game by game file downloaded."
-}
-
-function gamebygame_to_gamenums {
+function gamelist_to_gamenums {
 	cp /dev/null "$gamenums_file"
 
-	sed "s/</\n</g" "$gamebygame_file" | \
-	sed -n "s/<a[^>]* href=.\/game\/index\/\([0-9]*\)\?.*$/\1/p" | \
+	sed -n "s/^.*<a[^>]* href=.\/contests\/\([0-9]*\)\/box_score.*$/\1/p" "$gamelist_file" | \
 	while read game_number; do
 		if [ ! -f "$STATS_DIR/original/$game_number" ]; then
 			echo $game_number >> "$gamenums_file"
@@ -151,17 +128,12 @@ function download_team_games {
 
 	sleep 1
 
-	gamelist_to_gamebygame
+	gamelist_to_gamenums
 
-	sleep 2
-
-	gamebygame_to_gamenums
-	gamenums_to_gameurls
-
-	if [ -s "$gameurls_file" ]; then
+	if [ -s "$gamenums_file" ]; then
 		status_message "Downloading missing games:"
 		status_output_file "$gamenums_file"
-		wget_stats -nc -t 0 -w 10 --random-wait -i "$gameurls_file" -P "$STATS_DIR/original"
+		download_gamenums
 	else
 		status_message "The games for this team are all already downloaded."
 	fi
@@ -169,7 +141,7 @@ function download_team_games {
 
 function download_all_teams {
 	status_message "Downloading team list..."
-	wget_stats -O "$teamlist_file" "http://stats.ncaa.org/team/inst_team_list?academic_year=$STATS_YEAR&conf_id=-1&division=1&sport_code=MBB"
+	wget_stats -O "$teamlist_file" "https://stats.ncaa.org/team/inst_team_list?academic_year=$STATS_YEAR&conf_id=-1&division=1&sport_code=MBB"
 
 	sed "s/</\n</g" "$teamlist_file" | \
 	sed -n "s/<a href=.\/team\/\([0-9][0-9]*\/[0-9][0-9]*\).*$/http:\/\/stats.ncaa.org\/team\/\1/p" | \
@@ -182,15 +154,28 @@ function download_game_list {
 	status_message "Downloading specified games..."
 	
 	gamelistarg_to_gamenums
-	gamenums_to_gameurls
 
-	if [ -s "$gameurls_file" ]; then
+	if [ -s "$gamenums_file" ]; then
 		status_message "Downloading missing games:"
 		status_output_file "$gamenums_file"
-		wget_stats -nc -t 0 -w 10 --random-wait -i "$gameurls_file" -P "$STATS_DIR/original"
+		download_gamenums
 	else
 		status_message "The specified games have all already been downloaded."
 	fi
+}
+
+function download_gamenums {
+	if [[ -n $BLACKLIST_FILE ]]; then
+		sort "$gamenums_file" >| "$bltemp_file"
+		comm -23 "$bltemp_file" <(sort "$BLACKLIST_FILE") >| "$gamenums_file"
+
+	fi
+	cat "$gamenums_file" | while read gamenum; do
+		if [ ! -f "$STATS_DIR/original/$gamenum" ]; then
+			wget_stats -nc -O "$STATS_DIR/original/$gamenum" "https://stats.ncaa.org/contests/$gamenum/box_score"
+			sleep $((2 + RANDOM % 8))
+		fi
+	done
 }
 
 function download_kenpom {
