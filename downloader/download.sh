@@ -144,7 +144,7 @@ function download_all_teams {
 	wget_stats -O "$teamlist_file" "https://stats.ncaa.org/team/inst_team_list?academic_year=$STATS_YEAR&conf_id=-1&division=1&sport_code=MBB"
 
 	sed "s/</\n</g" "$teamlist_file" | \
-	sed -n "s/<a href=.\/team\/\([0-9][0-9]*\/[0-9][0-9]*\).*$/http:\/\/stats.ncaa.org\/team\/\1/p" | \
+	sed -n "s/<a href=.\/teams\/\([0-9][0-9]*\).*$/http:\/\/stats.ncaa.org\/teams\/\1/p" | \
 	while read team_url; do
 		download_team_games "$team_url"
 	done
@@ -172,7 +172,7 @@ function download_gamenums {
 	fi
 	cat "$gamenums_file" | while read gamenum; do
 		if [ ! -f "$STATS_DIR/original/$gamenum" ]; then
-			wget_stats -nc -O "$STATS_DIR/original/$gamenum" "https://stats.ncaa.org/contests/$gamenum/box_score"
+			wget_stats -nc -O "$STATS_DIR/original/$gamenum" "https://stats.ncaa.org/contests/$gamenum/team_stats"
 			sleep $((2 + RANDOM % 8))
 		fi
 	done
