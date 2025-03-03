@@ -104,6 +104,10 @@
 		</xsl:call-template>
 		<xsl:text>,</xsl:text>
 		<xsl:call-template name="numeric-stats-value">
+			<xsl:with-param name="text" select="normalize-space(.//html:tr/html:td[(position()=1) and (.='TO')]/..//html:td[position()=$colno])"/>
+		</xsl:call-template>
+		<xsl:text>,</xsl:text>
+		<xsl:call-template name="numeric-stats-value">
 			<xsl:with-param name="text" select="normalize-space(.//html:tr/html:td[(position()=1) and (.='STL')]/..//html:td[position()=$colno])"/>
 		</xsl:call-template>
 		<xsl:text>,</xsl:text>
